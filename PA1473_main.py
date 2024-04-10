@@ -29,43 +29,44 @@ colorSensor = ColorSensor(Port.S2)
 # define zero position
 def reset():
     gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
-    ev3.speaker.say("Make way.")
-    time.sleep(0.1)
-    ev3.speaker.say("Calibrating")
-    time.sleep(0.1)
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "Make way.")
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "Calibrating")
     elevation.run_until_stalled(-120, duty_limit=15, then=Stop.HOLD)
     while True:
-        elevation.run(15)
+        elevation.run(10)
+        print("up")
         if colorSensor.reflection() == 0:
-            elevation.run(-10)
+            print("stop")
             time.sleep(1)
+            elevation.run(-20)
+            time.sleep(1)
+            print("fghnfgt")
             elevation.reset_angle(0)
             elevation.hold()
             break
-    time.sleep(0.1)
     while True:
-        rotation.run(-10)
+        rotation.run(-20)
         if touchsensor.pressed():
             ev3.speaker.beep()
             break
     rotation.reset_angle(0)
-    time.sleep(0.1)
     gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     gripper.reset_angle(0)
     gripper.run_target(500, -90)
-    time.sleep(0.1)
-    ev3.speaker.say("Calibration complete.")
-    time.sleep(0.1)
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "Calibration complete.")
 
 
 # go to zero
-def go_to_0():
+def go_to_0(zone_info_matrix):
+    pickup_zone = zone_info_matrix[0]
     time.sleep(0.1)
-    ev3.speaker.say("Returning to zero.")
     time.sleep(0.1)
-    rotation.run_target(500, 0)
+    rotation.run_target(500, pickup_zone[0])
     rotation.hold()
-    elevation.run_target(500, 0)
+    elevation.run_target(500, pickup_zone[1])
     elevation.hold()
     gripper.run_target(500, 0)
     gripper.hold()
@@ -73,8 +74,11 @@ def go_to_0():
 
 # set drop off zones
 def set_drop_off_zones():
-    ev3.speaker.say(
-        "Assign 3 drop of zones. Use the arrow keys to align the crane with the drop of zone. Then press the center button to select."
+    ev3.screen.clear()
+    ev3.screen.draw_text(
+        10,
+        10,
+        "Assign 3 drop of zones. Use the arrow keys to align the crane with the drop of zone. Then press the center button to select.",
     )
     rotation_temp_int = 0
     elevation_temp_int = 0
@@ -102,7 +106,7 @@ def set_drop_off_zones():
         elif down_button and rotation_temp_int > 0:
             elevation_temp_int -= 1
         elif center_button:
-            if zone_temp_int == 3:
+            if zone_temp_int == 4:
                 return zone_info_matrix
             else:
                 rotation_int = rotation_temp_int
@@ -110,89 +114,110 @@ def set_drop_off_zones():
                 zone_info_matrix.append([rotation_int, elevation_int])
                 zone_temp_int += 1
                 time.sleep(0.1)
-                ev3.speaker.say("Drop off zone set.")
+                ev3.screen.clear()
+                ev3.screen.draw_text(10, 10, "Drop off zone set.")
                 time.sleep(1)
 
 
 # moving to the given zone and adjusting elevation so it doesn't run into the old blocks
-def go_to_the_zones(zone_info_matrix, i=0):
-    text = str("Going to zone ", i)
-    ev3.speaker.say(text)
+def go_to_the_zones(zone_info_matrix, i=1):
     rotation1 = zone_info_matrix[i][0]
     elevation1 = zone_info_matrix[i][1]
     rotation.run_target(500, rotation1)
-    elevation.run_until_stalled(-500, then=Stop.HOLD, duty_limit=15)
+    elevation.run_until_stalled(-200, then=Stop.HOLD, duty_limit=15)
     time.sleep(0.1)
     gripper.run_target(500, -90)
     time.sleep(0.1)
-    elevation.run_target(500, elevation1 + 50)
+    elevation.run_target(200, elevation1 + 50)
     time.sleep(0.1)
     zone_info_matrix[i][1] = zone_info_matrix[i][1] + 10
     return zone_info_matrix
 
 
 # staying idle for 10 seconds then running the main code again
-def idle_mode():
-    go_to_0()
-    time.sleep(10)
+def idle_mode(zone_info_matrix):
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "bravo 6 going dark")
+    elevation.run_until_stalled(500, then=Stop.HOLD, duty_limit=25)
+    time.sleep(1)
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "resuming work")
 
 
 # the robot picking up the block, writing its colour and returning what zone to put the block in
-def pick_up_block():
-    while True:
-        elevation.run_target(500, 0)
-        rotation.run_target(500, 0)
+def pick_up_block(zone_info_matrix):
+    pickup_zone = zone_info_matrix[0]
+    center_button = Button.CENTER in ev3.buttons.pressed()
+    while not center_button:
+        center_button = Button.CENTER in ev3.buttons.pressed()
+        print(center_button)
+        if center_button:
+            print("babis")
+        elevation.run_target(500, pickup_zone[1])
+        rotation.run_target(500, pickup_zone[0])
         gripper.run_target(500, -90)
         time.sleep(0.1)
-        elevation.run_until_stalled(-200, then=Stop.COAST, duty_limit=25)
+        elevation.run_until_stalled(-500, then=Stop.COAST, duty_limit=25)
         time.sleep(0.1)
-        gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=100)
-        time.sleep(0.1)
-        elevation.run_target(500, 5)
-        elevation.hold()
-        time.sleep(2)
-        r, g, b = colorSensor.rgb()
-
-        if colorSensor.color() == Color.RED:
-            ev3.speaker.say("The block is red")
-            return 0
-        elif colorSensor.color() == Color.GREEN:
-            ev3.speaker.say("The block is green")
-            return 1
-        elif colorSensor.color() == Color.BLUE:
-            ev3.speaker.say("The block is blue")
-            return 2
+        gripper.run_until_stalled(500, then=Stop.HOLD, duty_limit=50)
+        if gripper.angle() > 0:
+            print("hi")
+            idle_mode(zone_info_matrix)
         else:
-            ev3.speaker.say("no desired block detected")
-            gripper.run_target(500, -90)
-            idle_mode()
+            time.sleep(0.1)
+            elevation.run_target(500, 5)
+            elevation.hold()
+            time.sleep(0.1)
+            r, g, b = colorSensor.rgb()
+
+            if colorSensor.color() == Color.RED:
+                ev3.screen.clear()
+                ev3.screen.draw_text(10, 10, "red")
+                return 1
+            elif colorSensor.color() == Color.GREEN:
+                ev3.screen.clear()
+                ev3.screen.draw_text(10, 10, "green")
+                return 2
+            elif colorSensor.color() == Color.BLUE:
+                ev3.screen.clear()
+                ev3.screen.draw_text(10, 10, "blue")
+                return 3
+            else:
+                ev3.screen.clear()
+                ev3.screen.draw_text(10, 10, "wrong")
+                gripper.run_target(500, -90)
 
 
 # asks if the robot should use the pre-assigned drop off zones or if it should be reassigned manually
 def set_zones_or_load():
-    ev3.speaker.say(
-        "Press the up button to load saved drop off locations, or press the down button to manually set locations"
-    )
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "up to load")
+    ev3.screen.draw_text(10, 25, "down for manually")
     while True:
         up_button = Button.UP in ev3.buttons.pressed()
         down_button = Button.DOWN in ev3.buttons.pressed()
         if up_button:
-            ev3.speaker.say("Loading file")
+            ev3.screen.clear()
+            ev3.screen.draw_text(10, 10, "Loading file")
             return True
         elif down_button:
-            ev3.speaker.say("Manual mode")
+            ev3.screen.clear()
+            ev3.screen.draw_text(10, 10, "Manual mode")
             return False
 
 
 # the main code that loops for infinity
 def main_running_code(zone_info_matrix):
-    while True:
-        go_to_0()
+    center_button = Button.CENTER in ev3.buttons.pressed()
+    while not center_button:
+        print(center_button)
+        go_to_0(zone_info_matrix)
         time.sleep(0.1)
-        ev3.speaker.say("Picking up block.")
         time.sleep(1)
-        drop_of_zone_index = pick_up_block()
+        drop_of_zone_index = pick_up_block(zone_info_matrix)
         zone_info_matrix = go_to_the_zones(zone_info_matrix, drop_of_zone_index)
+        if center_button:
+            print("hisan")
 
 
 # calibration/zeroing and starting sequence (only happens once per run)
@@ -200,12 +225,12 @@ def start_upp_sequence():
     ev3.speaker.beep()
     time.sleep(0.1)
     ev3.speaker.beep()
-    ev3.speaker.say("Starting up.")
+    ev3.screen.clear()
+    ev3.screen.draw_text(10, 10, "Starting up.")
     reset()
     ev3.speaker.beep()
     time.sleep(0.1)
     ev3.speaker.beep()
-    go_to_0()
     time.sleep(0.1)
 
     if set_zones_or_load():
@@ -213,7 +238,8 @@ def start_upp_sequence():
             with open("saved_location1.txt") as save_file:
                 zone_info_matrix = json.load(save_file)
         except:
-            ev3.speaker.say("File not found. Manual setting started.")
+            ev3.screen.clear()
+            ev3.screen.draw_text(10, 10, "File not found. Manual setting started.")
             zone_info_matrix = set_drop_off_zones()
             with open("saved_location1.txt", "w") as save_file:
                 json.dump(zone_info_matrix, save_file)
@@ -222,7 +248,7 @@ def start_upp_sequence():
         zone_info_matrix = set_drop_off_zones()
         with open("saved_location1.txt", "w") as save_file:
             json.dump(zone_info_matrix, save_file)
-
+    go_to_0(zone_info_matrix)
     main_running_code(zone_info_matrix)
 
 
