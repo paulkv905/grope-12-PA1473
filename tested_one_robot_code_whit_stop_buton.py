@@ -10,6 +10,7 @@ from pybricks.ev3devices import (
 )
 from pybricks.parameters import Port, Stop, Direction, Button, Color
 import time
+import json
 
 ev3 = EV3Brick()
 motor1 = Motor(Port.C)
@@ -20,7 +21,7 @@ touchsensor = TouchSensor(Port.S1)
 colorSensor = ColorSensor(Port.S2)
 
 
-# the emergansy stop buten is plased in evry uthjer row 
+# the emergansy stop buten is plased in evry uthjer row
 def emergensy_stop():
     center_button = Button.CENTER in ev3.buttons.pressed()
     if center_button:
@@ -32,7 +33,7 @@ def emergensy_stop():
             time.sleep(0.1)
 
 
-# calebrating the zero position 
+# calebrating the zero position
 def reset():
     emergensy_stop()
     gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
@@ -101,11 +102,13 @@ def go_to_0(zone_info_matrix):
     emergensy_stop()
     rotation.hold()
     emergensy_stop()
+    gripper.run_target(500, -90)
+    emergensy_stop()
     elevation.run_target(500, pickup_zone[1])
     emergensy_stop()
     elevation.hold()
     emergensy_stop()
-    gripper.run_target(500, 0)
+    gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
     emergensy_stop()
     gripper.hold()
     emergensy_stop()
@@ -116,11 +119,9 @@ def set_drop_off_zones():
     emergensy_stop()
     ev3.screen.clear()
     emergensy_stop()
-    ev3.screen.draw_text(
-        10,
-        10,
-        "Assign 1 pickup 3 drop of and 1 dump zone",
-    )
+    ev3.screen.draw_text(10, 10, "Assign 1 pickup,")
+    ev3.screen.draw_text(10, 30, "3 drop off, and")
+    ev3.screen.draw_text(10, 50, "1 dump zone")
     emergensy_stop()
     rotation_temp_int = 0
     emergensy_stop()
@@ -152,6 +153,7 @@ def set_drop_off_zones():
         elif down_button and rotation_temp_int > 0:
             elevation_temp_int -= 1
         elif center_button:
+            ev3.speaker.beep()
             if zone_temp_int == 5:
                 return zone_info_matrix
             else:
@@ -173,6 +175,7 @@ def go_to_the_zones(zone_info_matrix, i=1):
     elevation1 = zone_info_matrix[i][1]
     emergensy_stop()
     rotation.run_target(500, rotation1)
+    emergensy_stop()
     emergensy_stop()
     elevation.run_until_stalled(-200, then=Stop.HOLD, duty_limit=15)
     emergensy_stop()
@@ -200,8 +203,8 @@ def idle_mode():
     emergensy_stop()
     elevation.run_until_stalled(500, then=Stop.HOLD, duty_limit=25)
     emergensy_stop()
-    for i in range(1):
-        time.sleep(1)
+    for i in range(10):
+        time.sleep(0.1)
         emergensy_stop()
     emergensy_stop()
     ev3.screen.clear()
@@ -211,11 +214,13 @@ def idle_mode():
 
 
 # the robot picking up the block, writing its colour and returning what zone to put the block in
-def pick_up_block():
+def pick_up_block(zone_info_matrix):
     emergensy_stop()
-    if gripper.angle() > 0:
+    if gripper.angle() >= -5:
         emergensy_stop()
         idle_mode()
+        main_running_code(zone_info_matrix)
+
     else:
         emergensy_stop()
         time.sleep(0.1)
@@ -259,7 +264,7 @@ def pick_up_block():
             emergensy_stop()
             ev3.screen.draw_text(10, 10, "wrong")
             emergensy_stop()
-            ev3.speaker.say("undisered color")
+            ev3.speaker.say("wrong")
             emergensy_stop()
             return 4
 
@@ -304,7 +309,7 @@ def main_running_code(zone_info_matrix):
         emergensy_stop()
         time.sleep(0.1)
         emergensy_stop()
-        drop_of_zone_index = pick_up_block()
+        drop_of_zone_index = pick_up_block(zone_info_matrix)
         emergensy_stop()
         zone_info_matrix = go_to_the_zones(zone_info_matrix, drop_of_zone_index)
         emergensy_stop()
@@ -328,7 +333,7 @@ def start_upp_sequence():
         try:
             with open("saved_location2.txt") as save_file:
                 zone_info_matrix = json.load(save_file)
-        except OSError as error_mesage:
+        except ValueError as error_mesage:
             print(error_mesage)
             ev3.screen.clear()
             ev3.screen.draw_text(10, 10, "File not found. Manual setting started.")
@@ -340,6 +345,8 @@ def start_upp_sequence():
         zone_info_matrix = set_drop_off_zones()
         with open("saved_location2.txt", "w") as save_file:
             json.dump(zone_info_matrix, save_file)
+    ev3.speaker.beep()
+    time.sleep(1)
     go_to_0(zone_info_matrix)
     main_running_code(zone_info_matrix)
 
