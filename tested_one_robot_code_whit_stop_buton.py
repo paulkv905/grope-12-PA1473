@@ -24,6 +24,8 @@ colorSensor = ColorSensor(Port.S2)
 # the emergansy stop buten is plased in evry uthjer row
 def emergensy_stop():
     center_button = Button.CENTER in ev3.buttons.pressed()
+    up_button = Button.UP in ev3.buttons.pressed()
+    down_button = Button.DOWN in ev3.buttons.pressed()
     if center_button:
         while True:
             elevation.hold()
@@ -31,6 +33,18 @@ def emergensy_stop():
             gripper.hold()
             ev3.speaker.beep()
             time.sleep(0.1)
+    elif down_button:
+        ev3.speaker.say("paused")
+        time.sleep(4)
+        while True:
+            elevation.hold()
+            rotation.hold()
+            gripper.hold()
+            time.sleep(0.1)
+            up_button = Button.UP in ev3.buttons.pressed()
+            if up_button:
+                print("bobois")
+                break
 
 
 # calebrating the zero position
@@ -116,21 +130,14 @@ def go_to_0(zone_info_matrix):
 
 # Assigns 1 pickup 3 drop of and 1 dump zones and saves them in zone_info_matrix
 def set_drop_off_zones():
-    emergensy_stop()
     ev3.screen.clear()
-    emergensy_stop()
     ev3.screen.draw_text(10, 10, "Assign 1 pickup,")
     ev3.screen.draw_text(10, 30, "3 drop off, and")
     ev3.screen.draw_text(10, 50, "1 dump zone")
-    emergensy_stop()
     rotation_temp_int = 0
-    emergensy_stop()
     elevation_temp_int = 0
-    emergensy_stop()
     zone_temp_int = 0
-    emergensy_stop()
     zone_info_matrix = []
-    emergensy_stop()
 
     while True:
         time.sleep(0.1)
@@ -271,32 +278,19 @@ def pick_up_block(zone_info_matrix):
 
 # asks if the robot should use the pre-assigned drop-off zones or if it should be reassigned manually
 def set_zones_or_load():
-    emergensy_stop()
     ev3.screen.clear()
-    emergensy_stop()
     ev3.screen.draw_text(10, 10, "up to load")
-    emergensy_stop()
     ev3.screen.draw_text(10, 25, "down for manually")
-    emergensy_stop()
     while True:
-        emergensy_stop()
         up_button = Button.UP in ev3.buttons.pressed()
-        emergensy_stop()
         down_button = Button.DOWN in ev3.buttons.pressed()
-        emergensy_stop()
         if up_button:
-            emergensy_stop()
             ev3.screen.clear()
-            emergensy_stop()
             ev3.screen.draw_text(10, 10, "Loading file")
-            emergensy_stop()
             return True
         elif down_button:
-            emergensy_stop()
             ev3.screen.clear()
-            emergensy_stop()
             ev3.screen.draw_text(10, 10, "Manual mode")
-            emergensy_stop()
             return False
 
 
