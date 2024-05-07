@@ -130,7 +130,7 @@ def go_to_0(zone_info_matrix):
     emergensy_stop()
     elevation.hold()
     emergensy_stop()
-    gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=50)
+    gripper.run_until_stalled(200, then=Stop.HOLD, duty_limit=75)
     emergensy_stop()
     gripper.hold()
     emergensy_stop()
@@ -146,7 +146,7 @@ def set_drop_off_zones():
     elevation_temp_int = 0
     zone_temp_int = 0
     zone_info_matrix = []
-
+    ev3.speaker.say("set pickup zone")
     while True:
         time.sleep(0.1)
         center_button = Button.CENTER in ev3.buttons.pressed()
@@ -169,6 +169,14 @@ def set_drop_off_zones():
             elevation_temp_int -= 1
         elif center_button:
             ev3.speaker.beep()
+            if zone_temp_int == 0:
+                ev3.speaker.say("set red zone")
+            elif zone_temp_int == 1:
+                ev3.speaker.say("set green zone")
+            elif zone_temp_int == 2:
+                ev3.speaker.say("set blue zone")
+            elif zone_temp_int == 3:
+                ev3.speaker.say("set dump zone")
             if zone_temp_int == 5:
                 return zone_info_matrix
             else:
@@ -340,8 +348,7 @@ def start_upp_sequence():
         try:
             with open("saved_location2.txt") as save_file:
                 zone_info_matrix = json.load(save_file)
-        except ValueError as error_mesage:
-            print(error_mesage)
+        except:
             ev3.screen.clear()
             ev3.screen.draw_text(10, 10, "File not found. Manual setting started.")
             zone_info_matrix = set_drop_off_zones()
