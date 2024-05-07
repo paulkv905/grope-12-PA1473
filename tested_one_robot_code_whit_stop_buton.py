@@ -43,7 +43,6 @@ def emergensy_stop():
             time.sleep(0.1)
             up_button = Button.UP in ev3.buttons.pressed()
             if up_button:
-                print("bobois")
                 break
 
 
