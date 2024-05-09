@@ -15,7 +15,7 @@ When setting zones, use the robot buttons to adjust the crane horizontally and v
 button again to start the main program. From there on it will be sorting automatically.
 If at any point you need to use the emergency stop function, press and hold the center button. The robot will start beeping to indicate the emergency stop being activated.
 To pause, instead press and hold the down button. The robot will then vocally confirm that the pause has been activated. To unpause and resume, press the up button.
-When connecting to another robot by bluetooth, please make sure the name of the robots are changed to correspond with the robots assigned letter to be more intuitive, as all robots have the same name as a default.
+When connecting to another robot by bluetooth, please make sure the name of the robots are changed to correspond with the robots assigned letter to be more intuitive, as all robots have the same name by default.
 
 ### User Stories Checklist
 - [x] US_1: The robot should be able to pick up items of designated colours from a designated position. [1SP]
