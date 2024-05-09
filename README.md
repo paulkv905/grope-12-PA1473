@@ -8,7 +8,7 @@ To start developing in this project you will need a python editor, for example V
 ### Building and running
 The files in this repository are named based on their purpose. Any files that start with "older" are versions that are no longer in use, and any file starting with "current" are the files currently in use. Our main files are divided into UI, single robot and multi robot. If you wish to use or run the UI, use the file called current_UI_unconnected.py. If you wish to run the program with only one robot, use current_single_robot.py, but if you wish to run it in collaboration with another robot, use current_multi_robot.py.
 
-When running this program on the robot, it will start by calibrating elevation, rotation and grip in the startup sequence. Please make sure there are no obstructions that may affect the calibration results. 
+When running this program on the robot, it will start by calibrating elevation, rotation and gripper in the startup sequence. Please make sure there are no obstructions that may affect the calibration results. 
 If the robot is used for the first time with the program, the pickup zones, sorting zones and dump zone will have to be set manually by the user, but after the initial setting they can be fetched from a save 
 file for a faster setup process. To use a saved file, press the up button, to set manually, press the down button. 
 When setting zones, use the robot buttons to adjust the crane horizontally and vertically to the desired location. Then confirm by pressing the center button. When all zones have been set, press the center 
