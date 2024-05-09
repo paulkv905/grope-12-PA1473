@@ -20,6 +20,11 @@ gripper = Motor(Port.A)
 touchsensor = TouchSensor(Port.S1)
 colorSensor = ColorSensor(Port.S2)
 
+start_time = time.time()
+hour_start = 10
+minuts_start = 59
+secunds_start = (hour_start*3600)+(minuts_start*60)
+
 
 # the emergansy stop buten is plased in evry uthjer row
 def emergensy_stop():
@@ -306,15 +311,22 @@ def set_zones_or_load():
 def main_running_code(zone_info_matrix):
     emergensy_stop()
     while True:
-        emergensy_stop()
-        go_to_0(zone_info_matrix)
-        emergensy_stop()
-        time.sleep(0.1)
-        emergensy_stop()
-        drop_of_zone_index = pick_up_block(zone_info_matrix)
-        emergensy_stop()
-        zone_info_matrix = go_to_the_zones(zone_info_matrix, drop_of_zone_index)
-        emergensy_stop()
+        secunds_sins_start = time.time() - start_time
+        hour = (secunds_sins_start + secunds_start)//3600
+        if hour>= 24:
+            start_time = time.time()
+            secunds_start = 0
+        elif 10<hour<16: 
+            emergensy_stop()
+            go_to_0(zone_info_matrix)
+            emergensy_stop()
+            time.sleep(0.1)
+            emergensy_stop()
+            drop_of_zone_index = pick_up_block(zone_info_matrix)
+            emergensy_stop()
+            zone_info_matrix = go_to_the_zones(zone_info_matrix, drop_of_zone_index)
+            emergensy_stop()
+        
 
 
 # calibration/zeroing and starting sequence (only happens once per run)
