@@ -39,4 +39,4 @@ When connecting to another robot by bluetooth, please make sure the name of the 
 
 ### Note on the User Stories Checklist
 The UI dashboard for US_18 is developed but is yet to be connected with the robot program, hence making it unfinished.
-THe absolute time schedule of US_12 is planned to connect with the UI dashboard, and is not finished due to the connecting issue in US_18.
+The absolute time schedule of US_12 is planned to connect with the UI dashboard, and is not finished due to the connecting issue in US_18.
