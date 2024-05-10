@@ -29,7 +29,7 @@ When connecting to another robot by bluetooth, please make sure the name of the 
 - [x] US_9: The robot should not drop the item from an elevated altitude. [2SP]
 - [x] US_10: The process including identifying the colour of an item and dropping it off within a designated area should not exceed 5 seconds. [2SP]
 - [x] US_11: If the robot does not find any item to sort it should go into an idle mode for 1-2 minutes before searching again. [3SP]
-- [ ] US_12: Easily change the schedule of robot pickup task (absolute time). [13SP]
+- [x] US_12: Easily change the schedule of robot pickup task (absolute time). [13SP]
 - [x] US_13: The robot should be able to work in tandem with another robot without obstructions.[34SP]
 - [x] US_14: The user should easily be able to manually set locations and height of one pickup zone and three drop off-zones.[3SP]
 - [x] US_15: Emergency stop button (terminates as it is, does not drop the item if held). [5SP]
@@ -39,4 +39,4 @@ When connecting to another robot by bluetooth, please make sure the name of the 
 
 ### Note on the User Stories Checklist
 The UI dashboard for US_18 is developed but is yet to be connected with the robot program, hence making it unfinished.
-The absolute time schedule of US_12 is planned to connect with the UI dashboard, and is not finished due to the connecting issue in US_18.
+The absolute time schedule of US_12 is planned to connect with the UI dashboard, and is not finished due to the connecting issue in US_18. It is, however, implemented in the main code, although we would prefer to connect it to the UI in the future.
